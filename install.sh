@@ -66,5 +66,9 @@ if [ -z "$EXTRACTED" ] || [ ! -f "$EXTRACTED/scripts/install.sh" ]; then
   exit 1
 fi
 
+# Instala a fonte em $DEST (o CLI dev-env aponta para cá)
+log "Instalando fonte em $DEST..."
+cp -a "$EXTRACTED/." "$DEST/"
+
 log "Executando instalador..."
-exec bash "$EXTRACTED/scripts/install.sh" --source "$EXTRACTED" "${ARGS[@]}"
+exec bash "$DEST/scripts/install.sh" --source "$DEST" "${ARGS[@]}"
