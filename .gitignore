@@ -1,0 +1,8 @@
+# backups de config
+*.bak-*
+# sistema
+.DS_Store
+*.swp
+# artefatos locais
+*.tar.gz
+/tmp/

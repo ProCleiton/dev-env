@@ -1,0 +1,38 @@
+setupVersion: 1
+modelRoles: 
+  smol: opencode-go/deepseek-v4-flash:medium
+  slow: opencode-go/deepseek-v4-flash:low
+  vision: kimi-code/k3:high
+  plan: kimi-code/k3:high
+  designer: kimi-code/k3:high
+  commit: opencode-go/deepseek-v4-flash:low
+  tiny: opencode-go/deepseek-v4-flash:low
+  task: kimi-code/k3
+  advisor: kimi-code/k3:high
+task: 
+  enableLsp: true
+  agentModelOverrides: 
+    scout: opencode-go/deepseek-v4-flash:low
+    task: opencode-go/deepseek-v4-flash:medium
+    sonic: opencode-go/deepseek-v4-flash:medium
+    designer: kimi-code/k3:high
+    reviewer: kimi-code/k3:high
+    librarian: opencode-go/deepseek-v4-flash:low
+retry: 
+  fallbackChains: 
+    opencode-go/deepseek-v4-flash: 
+      - kimi-code/kimi-for-coding
+  usageAwareFallback: true
+defaultThinkingLevel: auto
+disabledProviders: 
+  - gitlab-duo-agent
+  - gitlab-duo
+memory: 
+  backend: mnemopi
+mnemopi: 
+  scoping: per-project-tagged
+  embeddingVariant: multilingual
+autolearn: 
+  enabled: true
+browser: 
+  headless: false

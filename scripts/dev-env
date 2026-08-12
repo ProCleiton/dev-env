@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# ============================================================================
+# dev-env — CLI do ambiente (instalado em ~/.local/bin/dev-env)
+#
+# Uso:
+#   dev-env verify            verifica o ambiente (tabela OK/—)
+#   dev-env status            versões dos componentes
+#   dev-env install [flags]   instala componentes (re-executa o instalador)
+#   dev-env configure         reaplica as configurações do repo
+#   dev-env env               mostra o template de variáveis para o ~/.bashrc
+#   dev-env update            atualiza o repo local (git pull)
+#   dev-env uninstall         remove binários/CLI (configs preservadas)
+# ============================================================================
+set -euo pipefail
+
+DEV_ENV_SRC="${DEV_ENV_SRC:-$HOME/.local/share/dev-env}"
+BIN_DIR="$HOME/.local/bin"
+
+log()  { printf '\033[1;32m[dev-env]\033[0m %s\n' "$*"; }
+err()  { printf '\033[1;31m[dev-env]\033[0m %s\n' "$*" >&2; }
+
+usage() {
+  sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
+  exit "${1:-0}"
+}
+
+[ $# -lt 1 ] && usage
+
+case "$1" in
+  verify)
+    bash "$DEV_ENV_SRC/scripts/verify.sh" "${2:-}"
+    ;;
+  status)
+    echo "dev-env: $(git -C "$DEV_ENV_SRC" rev-parse --short HEAD 2>/dev/null || echo 'desconhecido')"
+    for b in omp pi mem jdtls-wrapper typescript-language-server rust-analyzer; do
+      if command -v "$b" >/dev/null 2>&1; then
+        printf '  %-26s %s\n' "$b" "$( "$b" --version 2>/dev/null | head -1 || echo presente)"
+      else
+        printf '  %-26s %s\n' "$b" "—"
+      fi
+    done
+    ;;
+  install)
+    shift
+    bash "$DEV_ENV_SRC/install.sh" "$@"
+    ;;
+  configure)
+    bash "$DEV_ENV_SRC/scripts/configure.sh" --source "$DEV_ENV_SRC"
+    ;;
+  env)
+    cat <<'EOF'
+# --- dev-env: variáveis de ambiente (adicione ao ~/.bashrc e ajuste valores) ---
+# Graylog (MCP)
+export GRAYLOG_URL="https://graylog.exemplo.com"
+export GRAYLOG_TOKEN="coloque-seu-token"
+# Providers de modelo (ex.: opencode-go) — ver ~/.omp/agent/config.yml
+# export OPENCODE_GO_API_KEY="..."
+# SDKMAN / nvm (se instalados)
+export SDKMAN_DIR="$HOME/.sdkman"
+export NVM_DIR="$HOME/.nvm"
+# ------------------------------------------------------------------------------
+EOF
+    ;;
+  update)
+    if [ -d "$DEV_ENV_SRC/.git" ]; then
+      git -C "$DEV_ENV_SRC" pull --ff-only
+      log "Atualizado. Rode 'dev-env configure' para reaplicar configs."
+    else
+      err "Fonte não é um clone git ($DEV_ENV_SRC). Reinstale via curl."
+    fi
+    ;;
+  uninstall)
+    rm -f "$BIN_DIR/dev-env" "$BIN_DIR/mem" "$BIN_DIR/jdtls-wrapper"
+    log "Binários removidos. Configs preservadas em ~/.omp/agent e ~/.pi/agent."
+    ;;
+  -h|--help|help) usage ;;
+  *) err "Comando desconhecido: $1"; usage 1 ;;
+esac

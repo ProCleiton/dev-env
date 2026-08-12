@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""mem — consulta ao banco mnemopi (~/.omp/agent/memories/mnemopi/mnemopi.db).
+
+Uso:
+  mem list [categoria] [--pinned] [--since DATA] [--until DATA] [--tag T]
+           [--min-importance N] [--order importancia|data|hits] [--limit N]
+  mem search <texto> [--limit N]
+  mem stats
+
+Categorias legadas: pendencia, licao, config, segredo-ref.
+Datas em ISO (YYYY-MM-DD). Saída: TSV compacto.
+"""
+import argparse, json, os, sqlite3, sys
+
+DB = os.path.expanduser("~/.omp/agent/memories/mnemopi/mnemopi.db")
+
+def connect():
+    if not os.path.exists(DB):
+        sys.exit(f"banco não encontrado: {DB}")
+    return sqlite3.connect(f"file:{DB}?mode=ro", uri=True)
+
+CAT = "json_extract(metadata_json,'$.categoria')"
+PIN = "json_extract(metadata_json,'$.pinned')"
+HITS = "COALESCE(json_extract(metadata_json,'$.legacy_hits'), recall_count, 0)"
+
+ORDERS = {
+    "importancia": f"importance DESC, timestamp DESC",
+    "data": "timestamp DESC",
+    "hits": f"{HITS} DESC, timestamp DESC",
+}
+
+def titulo(con, content):
+    return content.split("\n", 1)[0][:100]
+
+def cmd_list(a):
+    con = connect()
+    where, params = [], []
+    if a.categoria:
+        where.append(f"{CAT} = ?"); params.append(a.categoria)
+    if a.pinned:
+        where.append(f"{PIN} = 1")
+    if a.since:
+        where.append("timestamp >= ?"); params.append(a.since)
+    if a.until:
+        where.append("timestamp <= ?"); params.append(a.until + "~")
+    if a.tag:
+        where.append(f"json_extract(metadata_json,'$.tags') LIKE ?"); params.append(f"%{a.tag}%")
+    if a.min_importance is not None:
+        where.append("importance >= ?"); params.append(a.min_importance)
+    w = ("WHERE " + " AND ".join(where)) if where else ""
+    q = f"""SELECT content, importance, substr(timestamp,1,10), {PIN}, {HITS}, {CAT}
+            FROM working_memory {w}
+            ORDER BY {ORDERS[a.order]} LIMIT ?"""
+    params.append(a.limit)
+    rows = con.execute(q, params).fetchall()
+    if not rows:
+        print("(nenhum registro)")
+        return
+    for content, imp, data, pin, hits, cat in rows:
+        mark = "📌" if pin else "  "
+        print(f"{imp:.1f} {mark} {data or '—'} hits:{hits or 0:<3} [{cat or '?':10}] {titulo(con, content)}")
+
+def cmd_search(a):
+    con = connect()
+    q = f"""SELECT content, importance, substr(timestamp,1,10), {PIN}, {HITS}, {CAT}
+            FROM working_memory WHERE content LIKE ?
+            ORDER BY importance DESC, timestamp DESC LIMIT ?"""
+    rows = con.execute(q, (f"%{a.texto}%", a.limit)).fetchall()
+    if not rows:
+        print("(nenhum registro)")
+        return
+    for content, imp, data, pin, hits, cat in rows:
+        mark = "📌" if pin else "  "
+        print(f"{imp:.1f} {mark} {data or '—'} hits:{hits or 0:<3} [{cat or '?':10}] {titulo(con, content)}")
+
+def cmd_stats(_):
+    con = connect()
+    total = con.execute("SELECT COUNT(*) FROM working_memory").fetchone()[0]
+    print(f"total: {total}")
+    for cat, n, pins in con.execute(
+        f"SELECT {CAT}, COUNT(*), SUM({PIN}) FROM working_memory GROUP BY 1 ORDER BY 2 DESC"):
+        print(f"  {cat or '(sem categoria)':12} {n:4}  ({pins or 0} fixadas)")
+    print("\npor origem:")
+    for src, n in con.execute("SELECT source, COUNT(*) FROM working_memory GROUP BY 1 ORDER BY 2 DESC"):
+        print(f"  {src or '(nula)':30} {n}")
+
+p = argparse.ArgumentParser(prog="mem", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+sub = p.add_subparsers(dest="cmd", required=True)
+
+pl = sub.add_parser("list", help="lista registros com filtros")
+pl.add_argument("categoria", nargs="?", help="pendencia|licao|config|segredo-ref (omite = todas)")
+pl.add_argument("--pinned", action="store_true", help="só fixadas")
+pl.add_argument("--since", help="a partir de YYYY-MM-DD")
+pl.add_argument("--until", help="até YYYY-MM-DD")
+pl.add_argument("--tag", help="tag contém texto")
+pl.add_argument("--min-importance", type=float, default=None)
+pl.add_argument("--order", choices=list(ORDERS), default="importancia")
+pl.add_argument("--limit", type=int, default=50)
+pl.set_defaults(fn=cmd_list)
+
+ps = sub.add_parser("search", help="busca full-text no conteúdo")
+ps.add_argument("texto")
+ps.add_argument("--limit", type=int, default=20)
+ps.set_defaults(fn=cmd_search)
+
+pt = sub.add_parser("stats", help="resumo do banco")
+pt.set_defaults(fn=cmd_stats)
+
+args = p.parse_args()
+args.fn(args)

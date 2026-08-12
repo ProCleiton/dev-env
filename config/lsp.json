@@ -1,0 +1,20 @@
+{
+  "servers": {
+    "jdtls": {
+      "command": "@JDTLS_WRAPPER@",
+      "fileTypes": [".java"],
+      "languageId": "java",
+      "rootMarkers": ["pom.xml", ".classpath", "build.gradle", "settings.gradle"],
+      "settings": {
+        "java.import.maven.enabled": true
+      }
+    },
+    "typescript-language-server": {
+      "command": "@TSSERVER_PATH@",
+      "args": ["--stdio"],
+      "fileTypes": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"],
+      "languageId": "typescript",
+      "rootMarkers": ["package.json", "tsconfig.json"]
+    }
+  }
+}

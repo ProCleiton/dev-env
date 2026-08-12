@@ -1,0 +1,210 @@
+{
+  "lastChangelogVersion": "0.84.1",
+  "theme": "dark",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "deepseek-v4-flash",
+  "defaultThinkingLevel": "high",
+  "images": {
+    "blockImages": false
+  },
+  "followUpMode": "one-at-a-time",
+  "packages": [
+    "npm:pi-sakana-provider",
+    "npm:pi-subagents",
+    "npm:pi-mcp-adapter"
+  ],
+  "subagents": {
+    "defaultThinking": "medium",
+    "agentOverrides": {
+      "scout": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ],
+        "thinking": "low"
+      },
+      "planner": {
+        "model": "kimi-coding/k3",
+        "thinking": "high",
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "oracle": {
+        "model": "kimi-coding/k3",
+        "thinking": "high",
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "advisor": {
+        "model": "kimi-coding/k3",
+        "thinking": "high",
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "worker": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ],
+        "thinking": "medium"
+      },
+      "reviewer": {
+        "model": "kimi-coding/k3",
+        "thinking": "high",
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "researcher": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ],
+        "tools": [
+          "read",
+          "bash",
+          "intercom"
+        ],
+        "thinking": "low"
+      },
+      "context-builder": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "delegate": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-backend": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-dba": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-devop": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-frontend": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-frontend-debug": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-lazarus": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-tauri": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "eng-test": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "esp-git": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "esp-spec": {
+        "fallbackModels": [
+          "kimi-coding/kimi-for-coding",
+          "kimi-coding/k3",
+          "opencode-go/deepseek-v4-pro"
+        ]
+      },
+      "revisor-backend": {
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "revisor-dba": {
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "revisor-frontend": {
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      },
+      "revisor-seguranca": {
+        "fallbackModels": [
+          "opencode-go/deepseek-v4-pro",
+          "opencode-go/deepseek-v4-flash",
+          "kimi-coding/kimi-for-coding"
+        ]
+      }
+    },
+    "watchdog": {
+      "enabled": true,
+      "main": {
+        "model": "kimi-coding/k3",
+        "thinking": "high"
+      }
+    }
+  }
+}
