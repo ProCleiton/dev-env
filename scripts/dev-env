@@ -32,13 +32,21 @@ case "$1" in
     ;;
   status)
     echo "dev-env: $(git -C "$DEV_ENV_SRC" rev-parse --short HEAD 2>/dev/null || echo 'desconhecido')"
-    for b in omp pi mem jdtls-wrapper typescript-language-server rust-analyzer; do
+    for b in omp pi mem typescript-language-server rust-analyzer; do
       if command -v "$b" >/dev/null 2>&1; then
-        printf '  %-26s %s\n' "$b" "$( "$b" --version 2>/dev/null | head -1 || echo presente)"
+        printf '  %-26s %s\n' "$b" "$( timeout 5 "$b" --version 2>/dev/null | head -1 || echo presente)"
       else
         printf '  %-26s %s\n' "$b" "—"
       fi
     done
+    # jdtls: o wrapper NÃO responde a --version (inicia o servidor); usa a versão do core jar
+    if [ -x "$HOME/.local/bin/jdtls-wrapper" ]; then
+      local core
+      core="$(ls "$HOME/.local/share/jdtls"/plugins/org.eclipse.jdt.ls.core_*.jar 2>/dev/null | head -1)"
+      printf '  %-26s %s\n' "jdtls" "$(basename "${core:-?}" | sed 's/org.eclipse.jdt.ls.core_//;s/\.jar$//')"
+    else
+      printf '  %-26s %s\n' "jdtls" "—"
+    fi
     ;;
   install)
     shift
