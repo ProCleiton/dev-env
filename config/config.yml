@@ -11,6 +11,8 @@ modelRoles:
   advisor: kimi-code/k3:high
 task: 
   enableLsp: true
+  isolation: 
+    mode: auto
   agentModelOverrides: 
     scout: opencode-go/deepseek-v4-flash:low
     task: opencode-go/deepseek-v4-flash:medium
